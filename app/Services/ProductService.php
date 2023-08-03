@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Http\Requests\UpdateProductRequest;
 use App\Models\Product;
+use Illuminate\Http\Request;
 
 class ProductService
 {
@@ -28,14 +28,13 @@ class ProductService
     }
 
     /**
-     * @param UpdateProductRequest $request
+     * @param Request $request
      * @param Product $product
      * @return Product
      */
-    public function update($request, Product $product): Product
+    public function update(Request $request, Product $product)
     {
         $data = $request->all();
-        dd($data);
 
         if ($request->hasFile('photo')) {
             $photoPath = $request->file('photo')->store('product_photos', 'public');

@@ -24,24 +24,15 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::get();
+        $perPage = $request->input('per_page', 10); // Number of products per page, default: 10
+        $products = Product::paginate($perPage);
 
         return response()->json(
             $products,
             Response::HTTP_OK
         );
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -85,17 +76,6 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -104,14 +84,22 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($id);
+        try {
+            $product = Product::findOrFail($id);
 
-        $result = $this->productService->update($request, $product);
+            $result = $this->productService->update($request, $product);
 
-        return response()->json(
-            $result,
-            Response::HTTP_OK
-        );
+            return response()->json(
+                $result,
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                ['message' => $e->getMessage()],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
     }
 
     /**
@@ -122,12 +110,20 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
 
-        return response()->json(
-            'Deleted',
-            Response::HTTP_OK
-        );
+            return response()->json(
+                'Deleted',
+                Response::HTTP_OK
+            );
+        } catch (\Exception $e) {
+            return response()->json(
+                ['message' => $e->getMessage()],
+                Response::HTTP_INTERNAL_SERVER_ERROR
+            );
+        }
+
     }
 }
